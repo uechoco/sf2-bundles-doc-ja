@@ -16,8 +16,9 @@ Facebookログインと、FOSUserBundleで提供されるデータベースソ�
 
 ステップ 1. と 2. には、2つのオプションがあります:
 
-  1. Facebbokログインボタンを追加する: このやり方では、ステップ 3. を扱うためにJSコードが必要です
-  2. FOSFacebookBundleにFacebookログインページへリダイレクトさせる
+  1. Facebookのアプリケーション設定で"OAuth Migration"を選択する
+  2. Facebbokログインボタンを追加する: このやり方では、ステップ 3. を扱うためにJSコードが必要です
+  3. FOSFacebookBundleにFacebookログインページへリダイレクトさせる
 
 最初のファイヤーウォール設定の最初のプロバイダををFOSFacebookBUndleに設定して
 ユーザーが認証していない状態で認証が必要なページにアクセスした場合、
@@ -130,9 +131,12 @@ http://symfony.com/doc/2.0/book/security/authentication.html
                   public:
                       # since anonymous is allowed users will not be forced to login
                       pattern:   ^/.*
-                      fos_facebook:  true
+                      fos_facebook:
+                          app_url: "http://apps.facebook.com/appName/"
+                          server_url: "http://localhost/facebookApp/"
                       anonymous: true
-                      logout: true
+                      logout:
+                          handlers: ["fos_facebook.logout_handler"]
 
               access_control:
                   - { path: ^/secured/.*, role: [IS_AUTHENTICATED_FULLY] } # This is the route secured with fos_facebook
@@ -160,11 +164,24 @@ http://symfony.com/doc/2.0/book/security/authentication.html
                   public:
                       pattern:   ^/.*
                       fos_facebook:
+                          app_url: "http://apps.facebook.com/appName/"
+                          server_url: "http://localhost/facebookApp/"
                           login_path: ^/login
                           check_path: ^/login_check$
                           default_target_path: /
                           provider: my_fos_facebook_provider
                       anonymous: true
+                      logout:
+                          handlers: ["fos_facebook.logout_handler"]
+    
+ 
+          # application/config/config_dev.yml 
+          security:
+              firewalls:
+                  public:
+                      fos_facebook:
+                          app_url: "http://apps.facebook.com/appName/"
+                          server_url: "http://localhost/facebookApp/app_dev.php/" 
 
   8. お好みでセキュアな特定のURLでアクセスコントロールを使います
 
@@ -215,12 +232,23 @@ XFBMLマークアップをサイト内に追加したい場合は、
 
     <script>
       FB.Event.subscribe('auth.login', function(response) {
-        window.location = {{ path('_security_check') }};
+        window.location = "{{ path('_security_check') }}";
       });
     </script>
 
 上記の設定にマッチさせるために、
 "_security_cehck" ルート(route)は "/login_check" パターンに繋げる必要があります。
+
+また、ログアウトアクションのトリガーを必要とします。
+そのためには、 "logout" ルートにリダイレクトするために、
+"auth.logout" に予約します。
+
+    <script>
+      FB.Event.subscribe('auth.logout', function(response) {
+        window.location = "{{ path('_security_logout') }}";
+      });
+    </script>
+
 
 FOS\UserBundleを使ったカスタムユーザープロバイダの例
 -------------------------------------------------------
@@ -426,4 +454,4 @@ FOS\UserBundleを使ったカスタムユーザープロバイダの例
         }
     }
 
-> **TIP** Translated Info: 2011/08/11 uechoco 357c1e55
+> **TIP** Translated Info: 2011/09/18 uechoco a327853ae2
