@@ -17,7 +17,7 @@ Facebookログインと、FOSUserBundleで提供されるデータベースソ�
 ステップ 1. と 2. には、2つのオプションがあります:
 
   1. Facebookのアプリケーション設定で"OAuth Migration"を選択する
-  2. Facebbokログインボタンを追加する: このやり方では、ステップ 3. を扱うためにJSコードが必要です
+  2. Facebookログインボタンを追加する: このやり方では、ステップ 3. を扱うためにJSコードが必要です
   3. FOSFacebookBundleにFacebookログインページへリダイレクトさせる
 
 最初のファイヤーウォール設定の最初のプロバイダををFOSFacebookBUndleに設定して
